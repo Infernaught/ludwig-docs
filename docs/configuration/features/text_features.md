@@ -21,15 +21,15 @@ Parameters:
 Preprocessing parameters can also be defined once and applied to all text input features using the [Type-Global Preprocessing](../defaults.md#type-global-preprocessing) section.
 
 !!! note
-    If a text feature's encoder specifies a huggingface model, then the tokenizer for that model will be used
-    automatically.
+If a text feature's encoder specifies a huggingface model, then the tokenizer for that model will be used
+automatically.
 
 # Input Features
 
 The encoder parameters specified at the feature level are:
 
 - **`tied`** (default `null`): name of another input feature to tie the weights of the encoder with. It needs to be the name of
-a feature of the same type and with the same encoder parameters.
+  a feature of the same type and with the same encoder parameters.
 
 Example text feature entry in the input features list:
 
@@ -37,19 +37,19 @@ Example text feature entry in the input features list:
 name: text_column_name
 type: text
 tied: null
-encoder: 
-    type: bert
-    trainable: true
+encoder:
+  type: bert
+  trainable: true
 ```
 
 Parameters:
 
 - **`type`** (default `parallel_cnn`): encoder to use for the input text feature. The available encoders include encoders
-used for [Sequence Features](../sequence_features#sequence-input-features-and-encoders) as well as pre-trained text
-encoders from the
-face transformers library: `albert`, `auto_transformer`, `bert`, `camembert`, `ctrl`,
-`distilbert`, `electra`, `flaubert`, `gpt`, `gpt2`, `longformer`, `roberta`, `t5`, `mt5`, `transformer_xl`, `xlm`,
-`xlmroberta`, `xlnet`.
+  used for [Sequence Features](../sequence_features#sequence-input-features-and-encoders) as well as pre-trained text
+  encoders from the
+  face transformers library: `albert`, `auto_transformer`, `bert`, `camembert`, `ctrl`,
+  `distilbert`, `electra`, `flaubert`, `gpt`, `gpt2`, `longformer`, `roberta`, `t5`, `mt5`, `transformer_xl`, `xlm`,
+  `xlmroberta`, `xlnet`.
 
 Encoder type and encoder parameters can also be defined once and applied to all text input features using
 the [Type-Global Encoder](../defaults.md#type-global-encoder) section.
@@ -58,12 +58,13 @@ the [Type-Global Encoder](../defaults.md#type-global-encoder) section.
 
 ### Embed Encoder
 
-``` mermaid
+```mermaid
 graph LR
   A["12\n7\n43\n65\n23\n4\n1"] --> B["emb_12\nemb__7\nemb_43\nemb_65\nemb_23\nemb__4\nemb__1"];
   B --> C["Aggregation\n Reduce\n Operation"];
   C --> ...;
 ```
+
 { data-search-exclude }
 
 The embed encoder simply maps each token in the input sequence to an embedding, creating a `b x s x h` tensor where `b`
@@ -80,7 +81,7 @@ Parameters:
 
 ### Parallel CNN Encoder
 
-``` mermaid
+```mermaid
 graph LR
   A["12\n7\n43\n65\n23\n4\n1"] --> C["emb_12\nemb__7\nemb_43\nemb_65\nemb_23\nemb__4\nemb__1"];
   C --> D1["1D Conv\n Width 2"] --> E1["Pool"];
@@ -92,6 +93,7 @@ graph LR
   E3 --> F;
   E4 --> F;
 ```
+
 { data-search-exclude }
 
 The parallel cnn encoder is inspired by
@@ -113,13 +115,14 @@ Parameters:
 
 ### Stacked CNN Encoder
 
-``` mermaid
+```mermaid
 graph LR
   A["12\n7\n43\n65\n23\n4\n1"] --> B["emb_12\nemb__7\nemb_43\nemb_65\nemb_23\nemb__4\nemb__1"];
   B --> C["1D Conv Layers\n Different Widths"];
   C --> D["Fully\n Connected\n Layers"];
   D --> ...;
 ```
+
 { data-search-exclude }
 
 The stacked cnn encoder is inspired by [Xiang Zhang at all's Character-level Convolutional Networks for Text Classification](https://arxiv.org/abs/1509.01626).
@@ -130,7 +133,7 @@ by a flatten operation.
 This single flatten vector is then passed through a stack of fully connected layers and returned as a `b x h` tensor
 where `h` is the output size of the last fully connected layer.
 If you want to output the full `b x s x h` tensor, you can specify the `pool_size` of all your `conv_layers` to be
-`null`  and `reduce_output: null`, while if `pool_size` has a value different from `null` and `reduce_output: null` the
+`null` and `reduce_output: null`, while if `pool_size` has a value different from `null` and `reduce_output: null` the
 returned tensor will be of shape `b x s' x h`, where `s'` is width of the output of the last convolutional layer.
 
 {% set text_encoder = get_encoder_schema("text", "stacked_cnn") %}
@@ -142,7 +145,7 @@ Parameters:
 
 ### Stacked Parallel CNN Encoder
 
-``` mermaid
+```mermaid
 graph LR
   A["12\n7\n43\n65\n23\n4\n1"] --> C["emb_12\nemb__7\nemb_43\nemb_65\nemb_23\nemb__4\nemb__1"];
   C --> D1["1D Conv\n Width 2"] --> E["Concat"];
@@ -156,6 +159,7 @@ graph LR
   F --> G4["1D Conv\n Width 5"] --> H;
   H --> I["Pool"] --> J["Fully\n Connected\n Layers"] --> K["..."];
 ```
+
 { data-search-exclude }
 
 The stacked parallel cnn encoder is a combination of the Parallel CNN and the Stacked CNN encoders where each layer of
@@ -176,13 +180,14 @@ Parameters:
 
 ### RNN Encoder
 
-``` mermaid
+```mermaid
 graph LR
   A["12\n7\n43\n65\n23\n4\n1"] --> B["emb_12\nemb__7\nemb_43\nemb_65\nemb_23\nemb__4\nemb__1"];
   B --> C["RNN Layers"];
   C --> D["Fully\n Connected\n Layers"];
   D --> ...;
 ```
+
 { data-search-exclude }
 
 The rnn encoder works by first mapping the input token sequence `b x s` (where `b` is the batch size and `s` is the
@@ -201,7 +206,7 @@ Parameters:
 
 ### CNN RNN Encoder
 
-``` mermaid
+```mermaid
 graph LR
   A["12\n7\n43\n65\n23\n4\n1"] --> B["emb_12\nemb__7\nemb_43\nemb_65\nemb_23\nemb__4\nemb__1"];
   B --> C1["CNN Layers"];
@@ -209,6 +214,7 @@ graph LR
   C2 --> D["Fully\n Connected\n Layers"];
   D --> ...;
 ```
+
 { data-search-exclude }
 
 The `cnnrnn` encoder works by first mapping the input token sequence `b x s` (where `b` is the batch size and `s` is
@@ -227,13 +233,14 @@ Parameters:
 
 ### Transformer Encoder
 
-``` mermaid
+```mermaid
 graph LR
   A["12\n7\n43\n65\n23\n4\n1"] --> B["emb_12\nemb__7\nemb_43\nemb_65\nemb_23\nemb__4\nemb__1"];
   B --> C["Transformer\n Blocks"];
   C --> D["Fully\n Connected\n Layers"];
   D --> ...;
 ```
+
 { data-search-exclude }
 
 The `transformer` encoder implements a stack of transformer blocks, replicating the architecture introduced in the
@@ -252,12 +259,12 @@ Parameters:
 All huggingface-based text encoders are configured with the following parameters:
 
 - `pretrained_model_name_or_path` (default is the huggingface default model path for the specified encoder, i.e. `bert-base-uncased` for BERT). This can be either the name of a model or a path where it was downloaded. For details on the variants available refer to the [Hugging Face documentation](https://huggingface.co/docs/transformers/index#supported-models).
-- `reduce_output` (default `cls_pooled`): defines how to reduce the output tensor along the `s` sequence length dimension if the rank of the tensor is greater than 2. Available values are: `cls_pooled`, `sum`, `mean` or `avg`, `max`, `concat` (concatenates along the first dimension), `last` (returns the last vector of the first dimension) and  `null` (which does not reduce and returns the full tensor).
+- `reduce_output` (default `cls_pooled`): defines how to reduce the output tensor along the `s` sequence length dimension if the rank of the tensor is greater than 2. Available values are: `cls_pooled`, `sum`, `mean` or `avg`, `max`, `concat` (concatenates along the first dimension), `last` (returns the last vector of the first dimension) and `null` (which does not reduce and returns the full tensor).
 - `trainable` (default `false`): if `true` the weights of the encoder will be trained, otherwise they will be kept frozen.
 
 !!! note
-    Any hyperparameter of any huggingface encoder can be overridden. Check the
-    [huggingface documentation](https://huggingface.co/docs/transformers/index#supported-models) for which parameters are used for which models.
+Any hyperparameter of any huggingface encoder can be overridden. Check the
+[huggingface documentation](https://huggingface.co/docs/transformers/index#supported-models) for which parameters are used for which models.
 
     ```yaml
     name: text_column_name
@@ -283,7 +290,7 @@ Parameters:
 
 # Output Features
 
-Text output features are a special case of [Sequence Features](#sequence-output-features-and-decoders), so all options
+Text output features are a special case of [Sequence Features](sequence_features), so all options
 of sequence features are available for text features as well.
 
 Text output features can be used for either tagging (classifying each token of an input sequence) or text
@@ -299,29 +306,29 @@ reduce_input: null
 dependencies: []
 reduce_dependencies: sum
 loss:
-    type: softmax_cross_entropy
-    confidence_penalty: 0
-    robust_lambda: 0
-    class_weights: 1
-    class_similarities_temperature: 0
-decoder: 
-    type: generator
+  type: softmax_cross_entropy
+  confidence_penalty: 0
+  robust_lambda: 0
+  class_weights: 1
+  class_similarities_temperature: 0
+decoder:
+  type: generator
 ```
 
 Parameters:
 
 - **`reduce_input`** (default `sum`): defines how to reduce an input that is not a vector, but a matrix or a higher order
-tensor, on the first dimension (second if you count the batch dimension). Available values are: `sum`, `mean` or `avg`,
-`max`, `concat` (concatenates along the sequence dimension), `last` (returns the last vector of the sequence dimension).
+  tensor, on the first dimension (second if you count the batch dimension). Available values are: `sum`, `mean` or `avg`,
+  `max`, `concat` (concatenates along the sequence dimension), `last` (returns the last vector of the sequence dimension).
 - **`dependencies`** (default `[]`): the output features this one is dependent on. For a detailed explanation refer to
-[Output Feature Dependencies](../output_features#output-feature-dependencies).
+  [Output Feature Dependencies](../output_features#output-feature-dependencies).
 - **`reduce_dependencies`** (default `sum`): defines how to reduce the output of a dependent feature that is not a vector,
-but a matrix or a higher order tensor, on the first dimension (second if you count the batch dimension). Available
-values are: `sum`, `mean` or `avg`, `max`, `concat` (concatenates along the sequence dimension), `last` (returns the
-last vector of the sequence dimension).
+  but a matrix or a higher order tensor, on the first dimension (second if you count the batch dimension). Available
+  values are: `sum`, `mean` or `avg`, `max`, `concat` (concatenates along the sequence dimension), `last` (returns the
+  last vector of the sequence dimension).
 - **`loss`** (default `{type: softmax_cross_entropy, class_similarities_temperature: 0, class_weights: 1,
 confidence_penalty: 0, robust_lambda: 0}`): is a dictionary containing a loss `type`. The only available loss `type` for
-text features is `softmax_cross_entropy`. See [Loss](#loss) for details.
+  text features is `softmax_cross_entropy`. See [Loss](#loss) for details.
 - **`decoder`** (default: `{"type": "generator"}`): Decoder for the desired task. Options: `generator`, `tagger`. See [Decoder](#decoder) for details.
 
 Decoder type and decoder parameters can also be defined once and applied to all text output features using
@@ -332,7 +339,7 @@ also be defined once in the same way.
 
 ### Generator
 
-``` mermaid
+```mermaid
 graph LR
   A["Combiner Output"] --> B["Fully\n Connected\n Layers"];
   B --> C1["RNN"] --> C2["RNN"] --> C3["RNN"];
@@ -349,6 +356,7 @@ graph LR
   C3
   end
 ```
+
 { data-search-exclude }
 
 In the case of `generator` the decoder is a (potentially empty) stack of fully connected layers, followed by an RNN that
@@ -375,7 +383,7 @@ Parameters:
 
 ### Tagger
 
-``` mermaid
+```mermaid
 graph LR
   A["emb[0]\n....\nemb[n]"] --> B["Fully\n Connected\n Layers"];
   B --> C["Projection\n....\nProjection"];
@@ -389,6 +397,7 @@ graph LR
   A
   end
 ```
+
 { data-search-exclude }
 
 In the case of `tagger` the decoder is a (potentially empty) stack of fully connected layers, followed by a projection
@@ -423,11 +432,11 @@ The metrics available for text features are the same as for [Sequence Features](
 - `sequence_accuracy` The rate at which the model predicted the correct sequence.
 - `token_accuracy` The number of tokens correctly predicted divided by the total number of tokens in all sequences.
 - `last_accuracy` Accuracy considering only the last element of the sequence. Useful to ensure special end-of-sequence
-tokens are generated or tagged.
+  tokens are generated or tagged.
 - `edit_distance` Levenshtein distance: the minimum number of single-token edits (insertions, deletions or substitutions)
-required to change predicted sequence to ground truth.
+  required to change predicted sequence to ground truth.
 - `perplexity` Perplexity is the inverse of the predicted probability of the ground truth sequence, normalized by the
-number of tokens. The lower the perplexity, the higher the probability of predicting the true sequence.
+  number of tokens. The lower the perplexity, the higher the probability of predicting the true sequence.
 - `loss` The value of the loss function.
 
 You can set any of the above as `validation_metric` in the `training` section of the configuration if `validation_field`
